@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/tamnd/code/myproject/tensorflow_demo/chatbot_demo/model.tflearn"
+all_model_checkpoint_paths: "/home/tamnd/code/myproject/tensorflow_demo/chatbot_demo/model.tflearn"
