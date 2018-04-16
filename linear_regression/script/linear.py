@@ -8,18 +8,9 @@ from numpy import set_printoptions
 def normalizeFeature(feature):
     '''
     '''
-    duongDan = os.getcwd() + '/ex1data2.txt'
-    tenCot = ['area', 'no_room', 'price']
-    duLieu = read_csv(duongDan, names=tenCot)
-    maTran = duLieu.values
-    X = maTran[:,0:4]
-    y = maTran[:,4]
-    dieuChinh = preprocessing.Normalizer().fit (X)# lớp Normalizer
-    X_dieuChinh = dieuChinh.transform(X)
-    set_printoptions(precision=3)
-    print (X_dieuChinh[:5])
-    return 0
-
+    data = np.loadtxt('ex1data2.txt',skiprows=0, delimiter=',')
+    print data
+    
 normalizeFeature(1)
 
 # def computeCost():
