@@ -11,6 +11,10 @@ def main(argv):
     Return time of postion inputted
     >>> python world_time.py Ho Chi Minh
     09:15:24 17-04-2018
+    >>> python world_time.py San franCisco
+    19:26:22 16/04/2018
+    >>> python world_time.py Hanoi
+    None
     '''
     tz_data = {
         'ho chi minh': 7,
@@ -27,10 +31,11 @@ def main(argv):
     }
     fmt = '%H:%M:%S %d/%m/%Y'
     position = ' '.join(argv).lower()
-    dt = None
     if position in tz_data.keys():
+        dt = None
         dt = datetime.now() + timedelta(hours=tz_data[position])
-    return dt.strftime(fmt)
+        return dt.strftime(fmt)
+    return None
 
 if __name__ == "__main__":
    print main(sys.argv[1:])
