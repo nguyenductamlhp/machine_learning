@@ -28,9 +28,13 @@ class Human:
         
     
 def main(argv):
-    human = Human(None, None)
-    human.read_from_json(argv[1])
-    human.show_info()
+    try:
+        with open(argv[1]) as file:
+            human = Human(None, None)
+            human.read_from_json(argv[1])
+            human.show_info()
+    except IOError:
+        print "Error when read file!"
 
 if __name__ == "__main__":
     print "Read and display human infomation ..."
