@@ -1,52 +1,118 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
+import pandas as pd
+from random import randrange
 
-np.random.seed(12)
-num_observations = 5000
+dataset = pd.read_csv('ex2data2.txt')
+dataset = dataset.apply(pd.to_numeric, errors='ignore')
 
-x1 = np.random.multivariate_normal([0, 0], [[1, .75],[.75, 1]], num_observations)
-x2 = np.random.multivariate_normal([1, 4], [[1, .75],[.75, 1]], num_observations)
+X = dataset.iloc[:, :-1].values
+y = dataset.iloc[:, -1].values 
 
-simulated_separableish_features = np.vstack((x1, x2)).astype(np.float32)
-simulated_labels = np.hstack((np.zeros(num_observations),
-                              np.ones(num_observations)))
-
-def sigmoid(z):
-    return 1 / (1 + np.exp(-z))
-
-def log_likelihood(features, target, weights):
-    scores = np.dot(features, weights)
-    ll = np.sum( target*scores - np.log(1 + np.exp(scores)) )
-    return ll
-
-def logistic_regression(features, target, num_steps, learning_rate, add_intercept = False):
-    if add_intercept:
-        intercept = np.ones((features.shape[0], 1))
-        features = np.hstack((intercept, features))
-        
-    weights = np.zeros(features.shape[1])
+# Split a dataset into k folds
+def cross_validation_split(dataset, n_folds):
+    cross_validation_dataset = list()
+    dataset_copy = list(dataset)
+    fold_size = int(len(dataset_copy)/n_folds)
     
-    for step in xrange(num_steps):
-        scores = np.dot(features, weights)
-        predictions = sigmoid(scores)
+    for i in range(0, n_folds):
+        fold = list()
+        while len(fold) < fold_size:
+            index = randrange(len(dataset_copy))
+            fold.append(dataset_copy.pop(index))
+        cross_validation_dataset.append(fold)
+    return cross_validation_dataset
 
-        # Update weights with gradient
-        output_error_signal = target - predictions
-        gradient = np.dot(features.T, output_error_signal)
-        weights += learning_rate * gradient
+def sigmoid(X):
+    return 1/(1 + np.exp(- X))
+    
+def pre_processing(matrix):
+    range_ = 10
+    b = np.apply_along_axis(lambda x: (x-np.mean(x))/range_, 0, matrix)
+    return b
+
+def cost_function(X, y, theta):
+    h_theta = sigmoid(np.dot(X, theta))
+    log_l = (-y)*np.log(h_theta) + (1 - y)*np.log(1 - h_theta)
+    return log_l.mean()
+
+def calculate_gradient(X, y, theta, index, X_count):
+    dummy_theta = sigmoid(np.dot(X, theta))
+    sum_ = 0.0
+    for i in range(dummy_theta.shape[0]):
+        sum_ = sum_ + (dummy_theta[i] - y[i]) * X[i][index]
+    return sum_
+
+
+def gradient_descent(training_set, alpha, max_iterations, plot_graph):
+    iter_count = 0
+
+    training_set = np.asarray(training_set)
+    X = training_set.T[0:2].T
+    y = training_set.T[2].T
+    X_count = X.shape[1]
+
+    theta = np.zeros(X_count)
+    x_vals = []
+    y_vals = []
+    regularization_parameter = 1
+    while(iter_count < max_iterations):
+        iter_count += 1
+        for i in range(X_count):
+            prediction = calculate_gradient(X, y, theta, i, X_count)
+            prev_theta = theta[i]
+            if i != 0:
+                prediction += (regularization_parameter/X_count)*prev_theta
+            theta[i] = prev_theta - alpha * prediction
+            
+            if plot_graph:
+                mean = cost_function(X, y, theta)
+                x_vals.append(iter_count)
+                y_vals.append(mean)
+    
+    return theta
+
+def compute_efficiency(test_set, theta):
+    test_set = np.asarray(test_set)
+    X = test_set.T[0:2].T
+    y = test_set.T[2].T
+    X_count = X.shape[0]
+    correct = 0
+    
+    for i in range(X_count):
+        prediction = 0
+        value  = np.dot(theta, X[i])
+        if value >= 0.5:
+            prediction = 1
+        else:
+            prediction = 0
+        if prediction == y[i]:
+            correct+=1
+    return correct*100/X.shape[0]
+    
+    
+def evaluate_algorithm(dataset, n_folds, alpha, max_iterations, plot_graph):
+    folds = cross_validation_split(dataset, n_folds)
+    results = []
+    for fold in folds:
+        train_set = list(folds)
+        train_set.remove(fold)
+        train_set = sum(train_set, [])
+        test_set = list()
         
-        # Print log-likelihood every so often
-        if step % 10000 == 0:
-            print log_likelihood(features, target, weights)
+        for row in fold:
+            row_copy = list(row)
+            test_set.append(row_copy)
         
-    return weights
+        theta = gradient_descent(train_set, alpha, max_iterations, plot_graph)
+        results.append(compute_efficiency(test_set, theta))
+    return np.asarray(results)
 
-weights = logistic_regression(simulated_separableish_features, simulated_labels,
-     num_steps = 300000, learning_rate = 5e-5, add_intercept=True)
 
-data_with_intercept = np.hstack((np.ones((simulated_separableish_features.shape[0], 1)),
-                                 simulated_separableish_features))
-final_scores = np.dot(data_with_intercept, weights)
-preds = np.round(sigmoid(final_scores))
-
-print 'Accuracy from scratch: {0}'.format((preds == simulated_labels).sum().astype(float) / len(preds))
-print 'Accuracy from sk-learn: {0}'.format(clf.score(simulated_separableish_features, simulated_labels))
+X = pre_processing(X)
+reshaped_y = y.reshape(y.shape[0], -1)
+processed_dataset = np.concatenate((X, reshaped_y), axis=1)
+results = evaluate_algorithm(processed_dataset.tolist(), n_folds=10,
+                             alpha=0.01, max_iterations=500, plot_graph=False)
+print("Mean : ",np.mean(results))
