@@ -4,11 +4,27 @@ import numpy as np
 import pandas as pd
 from random import randrange
 
-dataset = pd.read_csv('ex2data2.txt')
-dataset = dataset.apply(pd.to_numeric, errors='ignore')
 
-X = dataset.iloc[:, :-1].values
-y = dataset.iloc[:, -1].values 
+def mapFeature(X1, X2):
+# MAPFEATURE Feature mapping function to polynomial features
+#
+#   MAPFEATURE(X1, X2) maps the two input features
+#   to quadratic features used in the regularization exercise.
+#
+#   Returns a new feature array with more features, comprising of 
+#   X1, X2, X1.^2, X2.^2, X1*X2, X1*X2.^2, etc..
+#
+#   Inputs X1, X2 must be the same size
+    degree = 6
+    out = np.ones([len(X1), (degree+1)*(degree+2)/2])
+    idx = 1
+    for i in range(1, degree+1):
+        for j in range(0, i+1):
+            a1 = X1 ** (i-j)
+            a2 = X2 ** j
+            out[:, idx] = a1*a2
+            idx += 1
+    return out
 
 # Split a dataset into k folds
 def cross_validation_split(dataset, n_folds):
@@ -110,9 +126,20 @@ def evaluate_algorithm(dataset, n_folds, alpha, max_iterations, plot_graph):
     return np.asarray(results)
 
 
-X = pre_processing(X)
-reshaped_y = y.reshape(y.shape[0], -1)
-processed_dataset = np.concatenate((X, reshaped_y), axis=1)
-results = evaluate_algorithm(processed_dataset.tolist(), n_folds=10,
-                             alpha=0.01, max_iterations=500, plot_graph=False)
-print("Mean : ",np.mean(results))
+if __name__ == "__main__":
+    with open('ex2data2.txt', 'rb') as csvfile:
+        data = np.loadtxt(csvfile, delimiter=",")
+        print ">>> data", data
+        new_data = mapFeature(data[:,0], data[:,1])
+        print new_data
+    f_len = len(new_data[0])
+    X = new_data[:, :f_len - 1]
+    print "........", X
+    y = new_data[:, f_len -1]
+    print ",,,,,,,,,,,y", y
+    X = pre_processing(X)
+    reshaped_y = y.reshape(y.shape[0], -1)
+    processed_dataset = np.concatenate((X, reshaped_y), axis=1)
+    results = evaluate_algorithm(processed_dataset.tolist(), n_folds=10,
+                                 alpha=0.01, max_iterations=500, plot_graph=False)
+    print("Mean : ",np.mean(results))

@@ -26,3 +26,4 @@ if __name__ == "__main__":
     with open('ex2data2.txt', 'rb') as csvfile:
         data = np.loadtxt(csvfile, delimiter=",")
         new_data = mapFeature(data[:,0], data[:,1])
+        print new_data
