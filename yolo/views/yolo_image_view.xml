@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_yolo_image_form" model="ir.ui.view">
+        <field name="name">view.yolo.image.form</field>
+        <field name="model">yolo.image</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="path" />
+                        <field name="result" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_yolo_image_tree" model="ir.ui.view">
+        <field name="name">view.yolo.image.tree</field>
+        <field name="model">yolo.image</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="path" />
+                <field name="result" />
+            </tree>
+        </field>
+    </record>
+    
+    <record id="action_yolo_image" model="ir.actions.act_window">
+        <field name="name">Yogo Image</field>
+        <field name="res_model">yolo.image</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

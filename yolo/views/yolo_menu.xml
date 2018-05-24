@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem id="menu_yolo_main" name="Yolo"/>
+    <menuitem id="menu_yolo_detector" name="Yolo Detector"
+        action="action_yolo_detector"
+        parent="menu_yolo_main"/>
+
+    <menuitem id="menu_yolo_image" name="Yolo Image"
+        action="action_yolo_image"
+        parent="menu_yolo_main"/>
+</odoo>
