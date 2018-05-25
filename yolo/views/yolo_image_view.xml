@@ -10,6 +10,12 @@
                         <field name="path" />
                         <field name="result" />
                     </group>
+                    <group>
+                        <field name="src_image" widget="image" />
+                        <field name="result_image" widget="image" />
+                    </group>
+                    <separator/>
+                    <button string="Get Image" type="object" name="get_src_image" class="oe_highlight"/>
                 </sheet>
             </form>
         </field>

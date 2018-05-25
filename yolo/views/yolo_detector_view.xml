@@ -9,6 +9,11 @@
                     <group>
                         <field name="name" />
                         <field name="directory" />
+                        <field name="yolo_config" />
+                        <field name="yolo_weight" />
+                        <field name="meta" />
+                        <separator/>
+                        <button string="Detect Object" type="object" name="detect_object" class="oe_highlight"/>
                     </group>
                 </sheet>
             </form>
