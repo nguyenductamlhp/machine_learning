@@ -41,8 +41,31 @@ def c_array(ctype, values):
     arr[:] = values
     return arr
 
-lib = CDLL("/home/tamnd/code/myproject/odoo10/machine_learning/yolo/models/libdarknet.so", RTLD_GLOBAL)
-# lib = CDLL("./libdarknet.so", RTLD_GLOBAL)
+def get_setting_file():
+    subpath = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.abspath(os.path.join(subpath, os.pardir))
+    path = path + "/setting.conf"
+    return path
+
+def get_setting():
+    subpath = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.abspath(os.path.join(subpath, os.pardir))
+    path = path + "/setting.conf"
+    with open(path) as file:
+        lines = [line.rstrip('\n') for line in file]
+    d = {}
+    for line in lines:
+        t = line.split(':')
+        d[t[0]] = t[1]
+    return d
+
+setting_dict = get_setting()
+libdarknet_path = setting_dict['libdarknet_path']
+yolo_config_path = setting_dict['yolo_config_path']
+yolo_weight_path = setting_dict['yolo_weight_path']
+meta_path = setting_dict['meta_path']
+
+lib = CDLL(libdarknet_path, RTLD_GLOBAL)
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
 lib.network_height.argtypes = [c_void_p]
@@ -111,6 +134,9 @@ predict_image = lib.network_predict_image
 predict_image.argtypes = [c_void_p, IMAGE]
 predict_image.restype = POINTER(c_float)
 
+net = load_net(yolo_config_path, yolo_weight_path, 0)
+meta = load_meta(meta_path)
+
 def classify(net, meta, im):
     out = predict_image(net, im)
     res = []
@@ -144,18 +170,11 @@ class YoloDetector(models.Model):
 
     name = fields.Char("Detector Name", required=True)
     directory = fields.Char("Directory", required=True)
-    yolo_config = fields.Char("Config file", required=True)
-    yolo_weight = fields.Char("Yolo weights", required=True)
-    meta = fields.Char("Metadata", required=True)
 
     @api.multi
     def detect_object(self):
         image_env = self.env['yolo.image']
         for rec in self:
-            net = load_net(rec.yolo_config, rec.yolo_weight, 0)
-            print ("net", net)
-            meta = load_meta(rec.meta)
-            print (type(net), type(meta))
             images = []
             for file in os.listdir(rec.directory):
                 if file.endswith(".jpg") or file.endswith(".png"):
