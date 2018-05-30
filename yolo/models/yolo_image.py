@@ -1,32 +1,63 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import re
 import uuid
 
+
 from odoo import _, api, fields, models, modules, tools
 from odoo.exceptions import UserError
-from odoo.osv import expression
-from odoo.tools import ormcache
-from odoo.tools.safe_eval import safe_eval
+import base64
+from PIL import Image
+import os
+import tempfile
+from collections import defaultdict
+from itertools import product
+from sklearn.model_selection import train_test_split
+import shutil
+import re
+import glob
+from scipy import ndimage
+from six.moves import cPickle as pickle
+import tensorflow as tf
+import numpy as np
+from six.moves import range
+import sys
+from ctypes import *
+import math
+import random
+from box import BOX
+from image import IMAGE
+from metadata import METADATA
+from detection import DETECTION
+from function import detect
+from function import net
+from function import meta
 
 
 class YoloImage(models.Model):
     _name = 'yolo.image'
-    _rec_name = 'path'
 
-    path = fields.Char(
-        "Image Path", required=True,
-        help="Absolute path of image")
+    name = fields.Char(
+        "Image Name", help="Name of image")
     result = fields.Char("Result")
-    src_image = fields.Binary(
-        "Source Image", compute='get_src_image', attachment=True, store=True,
-        help="Original image, limited to 1024x1024px.")
-    result_image = fields.Binary(
-        "Photo", compute='_get_src_image', attachment=True, store=True,
-        help="Original image, limited to 1024x1024px.")
+    src_image = fields.Binary("Source Image", attachment=True)
+    result_image = fields.Binary("Photo", attachment=True)
 
-    @api.depends('path')
-    def get_src_image(self):
+    @api.multi
+    def detect_object(self):
         for rec in self:
-            print "... rec.path", rec.path
-            rec.src_image = tools.image_resize_image_big(
-                open(rec.path, 'rb').read().encode('base64'))
+            if not rec.src_image:
+                raise UserError("no image on this record")
+            # decode the base64 encoded data
+            data = base64.decodestring(rec.src_image)
+            # create a temporary file, and save the image
+            fobj = tempfile.NamedTemporaryFile(delete=False)
+            fname = fobj.name
+            fobj.write(data)
+            fobj.close()
+            # open the image with PIL
+            try:
+                rec.result = detect(net, meta, fname)
+            finally:
+                # delete the file when done
+                os.unlink(fname)

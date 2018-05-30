@@ -7,7 +7,7 @@
             <form>
                 <sheet>
                     <group>
-                        <field name="path" />
+                        <field name="name" />
                         <field name="result" />
                     </group>
                     <group>
@@ -15,7 +15,9 @@
                         <field name="result_image" widget="image" />
                     </group>
                     <separator/>
-                    <button string="Get Image" type="object" name="get_src_image" class="oe_highlight"/>
+                    <group>
+                        <button string="Detect Object" type="object" name="detect_object" class="oe_highlight"/>
+                    </group>
                 </sheet>
             </form>
         </field>
@@ -26,7 +28,7 @@
         <field name="model">yolo.image</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="path" />
+                <field name="name" />
                 <field name="result" />
             </tree>
         </field>

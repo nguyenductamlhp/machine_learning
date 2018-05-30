@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import print_function
 from odoo import models, fields, api
 import base64
@@ -44,10 +43,10 @@ class YoloDetector(models.Model):
                 if file.endswith(".jpg") or file.endswith(".png"):
                     images.append(os.path.join(rec.directory, file))
             for img in images:
+                print ("img", img)
                 r = detect(net, meta, img)
-                print (r)
                 vals = {
-                    'path': img,
+                    'name': img,
                     'result': r
                 }
                 image_env.create(vals)
