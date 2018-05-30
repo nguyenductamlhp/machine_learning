@@ -40,12 +40,6 @@ def c_array(ctype, values):
     arr[:] = values
     return arr
 
-def get_setting_file():
-    subpath = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-    path = os.path.abspath(os.path.join(subpath, os.pardir))
-    path = path + "/setting.conf"
-    return path
-
 def get_setting():
     subpath = os.path.join(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.abspath(os.path.join(subpath, os.pardir))

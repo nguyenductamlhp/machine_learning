@@ -2,7 +2,7 @@
 {
     'name': 'Yolo Detect',
     'version': '1.0',
-    'category': '',
+    'category': 'Computer Vision',
     'author': 'nguyenductamlhp@gmail.com',
     'website': '',
     'depends': [
@@ -13,7 +13,6 @@
         'views/yolo_image_view.xml',
         'views/yolo_menu.xml',
     ],
-
     'qweb': [
     ],
 
