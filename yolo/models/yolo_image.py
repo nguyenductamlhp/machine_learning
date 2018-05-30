@@ -41,7 +41,7 @@ class YoloImage(models.Model):
         "Image Name", help="Name of image")
     result = fields.Char("Result")
     src_image = fields.Binary("Source Image", attachment=True)
-    result_image = fields.Binary("Photo", attachment=True)
+    result_image = fields.Binary("Result Image", attachment=True)
 
     @api.multi
     def detect_object(self):

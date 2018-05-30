@@ -8,15 +8,21 @@
                 <sheet>
                     <group>
                         <field name="name" />
-                        <field name="result" />
                     </group>
                     <group>
-                        <field name="src_image" widget="image" />
-                        <field name="result_image" widget="image" />
+                        <group>
+                            <field name="src_image" widget="image" />
+                        </group>
+                        <group>
+                            <field name="result_image" widget="image" />
+                        </group>
                     </group>
                     <separator/>
                     <group>
                         <button string="Detect Object" type="object" name="detect_object" class="oe_highlight"/>
+                    </group>
+                    <group>
+                        <field name="result" />
                     </group>
                 </sheet>
             </form>
